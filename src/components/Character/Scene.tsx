@@ -13,6 +13,20 @@ import {
 import setAnimations from "./utils/animationUtils";
 import { setProgress } from "../Loading";
 
+const isWebGLAvailable = () => {
+  try {
+    const canvas = document.createElement("canvas");
+
+    return !!(
+      window.WebGLRenderingContext &&
+      (canvas.getContext("webgl") ||
+        canvas.getContext("experimental-webgl"))
+    );
+  } catch {
+    return false;
+  }
+};
+
 const Scene = () => {
   const canvasDiv = useRef<HTMLDivElement | null>(null);
   const hoverDivRef = useRef<HTMLDivElement>(null);
@@ -21,7 +35,12 @@ const Scene = () => {
 
   const [character, setChar] = useState<THREE.Object3D | null>(null);
   useEffect(() => {
-    if (canvasDiv.current) {
+    if (!canvasDiv.current) return; 
+     if (!isWebGLAvailable()) {
+    console.warn("WebGL is not available. Skipping 3D character.");
+    return;
+  }
+try{
       let rect = canvasDiv.current.getBoundingClientRect();
       let container = { width: rect.width, height: rect.height };
       const aspect = container.width / container.height;
@@ -143,6 +162,13 @@ const Scene = () => {
         }
       };
     }
+    catch (error) {
+    console.error("Failed to initialize 3D scene:", error);
+
+    if (canvasDiv.current) {
+      canvasDiv.current.innerHTML = "";
+    }
+  }
   }, []);
 
   return (
