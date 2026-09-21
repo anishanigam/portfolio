@@ -14,14 +14,21 @@ import setAnimations from "./utils/animationUtils";
 import { setProgress } from "../Loading";
 
 const isWebGLAvailable = () => {
+  if (typeof window === "undefined" || typeof document === "undefined") {
+    return false;
+  }
+
   try {
     const canvas = document.createElement("canvas");
+    const contexts = ["webgl2", "webgl", "experimental-webgl"];
 
-    return !!(
-      window.WebGLRenderingContext &&
-      (canvas.getContext("webgl") ||
-        canvas.getContext("experimental-webgl"))
-    );
+    return contexts.some((contextName) => {
+      try {
+        return !!canvas.getContext(contextName);
+      } catch {
+        return false;
+      }
+    });
   } catch {
     return false;
   }
@@ -40,7 +47,7 @@ const Scene = () => {
     console.warn("WebGL is not available. Skipping 3D character.");
     return;
   }
-try{
+ try{
       let rect = canvasDiv.current.getBoundingClientRect();
       let container = { width: rect.width, height: rect.height };
       const aspect = container.width / container.height;
@@ -48,12 +55,12 @@ try{
 
       let renderer: THREE.WebGLRenderer;
 
-try {
+ try {
   renderer = new THREE.WebGLRenderer({
     alpha: true,
     antialias: true,
   });
-} catch (error) {
+ } catch (error) {
   console.error("WebGL initialization failed:", error);
 
   if (canvasDiv.current) {
@@ -61,7 +68,7 @@ try {
   }
 
   return;
-}
+ }
       renderer.setSize(container.width, container.height);
       renderer.setPixelRatio(window.devicePixelRatio);
       renderer.toneMapping = THREE.ACESFilmicToneMapping;
