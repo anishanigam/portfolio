@@ -46,10 +46,22 @@ try{
       const aspect = container.width / container.height;
       const scene = sceneRef.current;
 
-      const renderer = new THREE.WebGLRenderer({
-        alpha: true,
-        antialias: true,
-      });
+      let renderer: THREE.WebGLRenderer;
+
+try {
+  renderer = new THREE.WebGLRenderer({
+    alpha: true,
+    antialias: true,
+  });
+} catch (error) {
+  console.error("WebGL initialization failed:", error);
+
+  if (canvasDiv.current) {
+    canvasDiv.current.innerHTML = "";
+  }
+
+  return;
+}
       renderer.setSize(container.width, container.height);
       renderer.setPixelRatio(window.devicePixelRatio);
       renderer.toneMapping = THREE.ACESFilmicToneMapping;
