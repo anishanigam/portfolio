@@ -67,6 +67,13 @@ const projects = [
     image: "/images/work/logo-culrav25.png",
     link: "https://drive.google.com/drive/folders/1Dy9o7RNX6C3yew4fddJ1yTlpS_S_Rpup",
   },
+   {
+    title: "Luxury Jewellery — Editorial Social Promo",
+    category: "Commercial Brand Creatives",
+    tools: "Photoshop, Retouching, Social Media",
+    image: "/images/work/insta-jewellery.png",
+    link: "https://drive.google.com/drive/folders/17-ChONx8hR4UFjkEBGQbYytOyEMEKg7w",
+  },
 ];
 
 const Work = () => {
