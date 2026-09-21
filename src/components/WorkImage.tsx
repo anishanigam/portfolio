@@ -6,6 +6,7 @@ interface Props {
   alt?: string;
   video?: string;
   link?: string;
+  preserveAspectRatio?: boolean;
 }
 
 const WorkImage = (props: Props) => {
@@ -24,7 +25,7 @@ const WorkImage = (props: Props) => {
   return (
     <div className="work-image">
       <a
-        className="work-image-in"
+        className={`work-image-in${props.preserveAspectRatio ? " work-image-in-preserve-ratio" : ""}`}
         href={props.link}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={() => setIsVideo(false)}
