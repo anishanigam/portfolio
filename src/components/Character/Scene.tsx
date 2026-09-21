@@ -36,7 +36,6 @@ const Scene = () => {
   useEffect(() => {
     if (!canvasDiv.current) return;
 
-    // Start progress before any WebGL checks so the loader can never remain at 0%.
     const progress = setProgress(setLoading);
 
     if (!isWebGLAvailable()) {
@@ -91,8 +90,8 @@ const Scene = () => {
         character = gltf.scene;
         setChar(character);
         scene.add(character);
-        headBone = character.getObjectByName("spine006");
-        screenLight = character.getObjectByName("screenlight");
+        headBone = character.getObjectByName("spine006") ?? null;
+        screenLight = character.getObjectByName("screenlight") ?? null;
 
         progress.loaded().then(() => {
           setTimeout(() => {
@@ -117,10 +116,7 @@ const Scene = () => {
       handleTouchMove(event, (x, y) => (mouse = { x, y }));
     };
     const onTouchStart = (event: TouchEvent) => {
-      (event.target as HTMLElement | null)?.addEventListener(
-        "touchmove",
-        onTouchMove
-      );
+      (event.target as HTMLElement | null)?.addEventListener("touchmove", onTouchMove);
     };
     const onTouchEnd = () => {
       handleTouchEnd((x, y, interpolationX, interpolationY) => {
