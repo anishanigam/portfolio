@@ -16,34 +16,32 @@ const Career = () => {
             <div className="career-info-in">
               <div className="career-role">
                 <h4>Creative Design Lead</h4>
-                <h5>College Festivals (Culrav & Gnosiomania)</h5>
-              </div>
-              <h3>2022</h3>
-            </div>
-            <p>
-              Directed the visual identity for major university festivals.
-              Designed festival logos (including Culrav 2025), official event posters,
-              competition flyers, photobooth backdrops, and promotional banners.
-            </p>
-          </div>
-          <div className="career-info-box">
-            <div className="career-info-in">
-              <div className="career-role">
-                <h4>Lead Visual & Graphic Designer</h4>
-                <h5>TEDx MNNIT</h5>
+                <h5>Media House Of MNNIT</h5>
               </div>
               <h3>2023</h3>
             </div>
             <p>
-              Spearheaded complete visual identity and campaign creatives.
-              Designed keynote speaker reveal posters (including Dr. Vijender Chauhan),
-              stage backdrops, credentials, and digital launch collaterals.
+              Led the design team and directed visual content for Media House MNNIT.
+              Created event posters, social media creatives, promotional banners, publication
+              graphics, and digital assets for major university events.
             </p>
           </div>
           <div className="career-info-box">
             <div className="career-info-in">
               <div className="career-role">
-                <h4>Graphic & Apparel Designer</h4>
+                <h4>GDG Media Lead</h4>
+                <h5>Student Google Developer Group</h5>
+              </div>
+              <h3>2025</h3>
+            </div>
+            <p>
+              Managed the creative design for GDG MNNIT's technical events and community activities.Developed engaging event visuals, digital campaigns, social media content, and promotional creatives across workshops, sessions, and hackathons.
+            </p>
+          </div>
+          <div className="career-info-box">
+            <div className="career-info-in">
+              <div className="career-role">
+                <h4>Graphic Designer</h4>
                 <h5>Freelance & Independent Studio</h5>
               </div>
               <h3>NOW</h3>
