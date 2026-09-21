@@ -5,25 +5,18 @@ import { MdArrowBack, MdArrowForward, MdArrowOutward } from "react-icons/md";
 
 const projects = [
   {
+    title: "Chalchitra Film Club — Screening Poster",
+    category: "Film Club & Event Collaterals",
+    tools: "Photoshop, Film Poster Aesthetics",
+    image: "/images/work/poster-chalchitra.png",
+    link: "https://drive.google.com/drive/folders/1wWczwSUHJs07DnKFeW1SV3C4D1eqQXyi",
+  },
+  {
     title: "TEDx MNNIT — Keynote & Speaker Launch",
     category: "Event Branding & Key Visuals",
     tools: "Adobe Photoshop, Illustrator, Typography",
     image: "/images/work/tedx-vijender-chauhan.png",
     link: "https://drive.google.com/drive/folders/1Z0rSlAjobVZWBmRR47YzNFmgkx28bocj",
-  },
-  {
-    title: "The Last of Us — Cinematic Poster Art",
-    category: "Poster Design & Art Direction",
-    tools: "Adobe Photoshop, Digital Compositing",
-    image: "/images/work/poster-last-of-us.png",
-    link: "https://drive.google.com/drive/folders/1wWczwSUHJs07DnKFeW1SV3C4D1eqQXyi",
-  },
-  {
-    title: "Culrav 2025 — Official Festival Identity",
-    category: "Brand Identity & Logo Design",
-    tools: "Adobe Illustrator, Vector Art, Branding",
-    image: "/images/work/logo-culrav25.png",
-    link: "https://drive.google.com/drive/folders/1Dy9o7RNX6C3yew4fddJ1yTlpS_S_Rpup",
   },
   {
     title: "Demon Slayer Tanjiro — Streetwear Graphic Tee",
@@ -54,13 +47,6 @@ const projects = [
     link: "https://drive.google.com/drive/folders/1Z0rSlAjobVZWBmRR47YzNFmgkx28bocj",
   },
   {
-    title: "Chalchitra Film Club — Screening Poster",
-    category: "Film Club & Event Collaterals",
-    tools: "Photoshop, Film Poster Aesthetics",
-    image: "/images/work/poster-chalchitra.png",
-    link: "https://drive.google.com/drive/folders/1wWczwSUHJs07DnKFeW1SV3C4D1eqQXyi",
-  },
-  {
     title: "Modern Apparel Icon — Minimalist Logo",
     category: "Logo Design & Monograms",
     tools: "Adobe Illustrator, Vector Geometry",
@@ -73,6 +59,13 @@ const projects = [
     tools: "Photoshop, Retouching, Social Media",
     image: "/images/work/insta-jewellery.png",
     link: "https://drive.google.com/drive/folders/17-ChONx8hR4UFjkEBGQbYytOyEMEKg7w",
+  },
+   {
+    title: "Culrav 2025 — Official Festival Identity",
+    category: "Brand Identity & Logo Design",
+    tools: "Adobe Illustrator, Vector Art, Branding",
+    image: "/images/work/logo-culrav25.png",
+    link: "https://drive.google.com/drive/folders/1Dy9o7RNX6C3yew4fddJ1yTlpS_S_Rpup",
   },
 ];
 
