@@ -9,9 +9,13 @@ interface Props {
   preserveAspectRatio?: boolean;
 }
 
+const CULRAV_IMAGE = "/images/work/logo-culrav25.png";
+
 const WorkImage = (props: Props) => {
   const [isVideo, setIsVideo] = useState(false);
   const [video, setVideo] = useState("");
+  const isCulravImage = props.image === CULRAV_IMAGE || props.preserveAspectRatio;
+
   const handleMouseEnter = async () => {
     if (props.video) {
       setIsVideo(true);
@@ -25,20 +29,38 @@ const WorkImage = (props: Props) => {
   return (
     <div className="work-image">
       <a
-        className={`work-image-in${props.preserveAspectRatio ? " work-image-in-preserve-ratio" : ""}`}
+        className={`work-image-in${isCulravImage ? " work-image-in-preserve-ratio" : ""}`}
         href={props.link}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={() => setIsVideo(false)}
         target="_blank"
-        data-cursor={"disable"}
+        rel="noreferrer"
+        data-cursor="disable"
+        style={isCulravImage ? { display: "block", height: "auto", overflow: "visible" } : undefined}
       >
         {props.link && (
           <div className="work-link">
             <MdArrowOutward />
           </div>
         )}
-        <img src={props.image} alt={props.alt} />
-        {isVideo && <video src={video} autoPlay muted playsInline loop></video>}
+        <img
+          src={props.image}
+          alt={props.alt}
+          className={isCulravImage ? "culrav-logo-image" : undefined}
+          style={
+            isCulravImage
+              ? {
+                  display: "block",
+                  width: "min(100%, 700px)",
+                  height: "auto",
+                  maxWidth: "100%",
+                  maxHeight: "none",
+                  objectFit: "contain",
+                }
+              : undefined
+          }
+        />
+        {isVideo && <video src={video} autoPlay muted playsInline loop />}
       </a>
     </div>
   );
