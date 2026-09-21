@@ -14,21 +14,13 @@ import setAnimations from "./utils/animationUtils";
 import { setProgress } from "../Loading";
 
 const isWebGLAvailable = () => {
-  if (typeof window === "undefined" || typeof document === "undefined") {
-    return false;
-  }
-
   try {
     const canvas = document.createElement("canvas");
-    const contexts = ["webgl2", "webgl", "experimental-webgl"];
-
-    return contexts.some((contextName) => {
-      try {
-        return !!canvas.getContext(contextName);
-      } catch {
-        return false;
-      }
-    });
+    return Boolean(
+      canvas.getContext("webgl2") ||
+        canvas.getContext("webgl") ||
+        canvas.getContext("experimental-webgl")
+    );
   } catch {
     return false;
   }
@@ -39,166 +31,150 @@ const Scene = () => {
   const hoverDivRef = useRef<HTMLDivElement>(null);
   const sceneRef = useRef(new THREE.Scene());
   const { setLoading } = useLoading();
+  const [, setChar] = useState<THREE.Object3D | null>(null);
 
-  const [character, setChar] = useState<THREE.Object3D | null>(null);
   useEffect(() => {
-    if (!canvasDiv.current) return; 
-     if (!isWebGLAvailable()) {
-    console.warn("WebGL is not available. Skipping 3D character.");
-    return;
-  }
- try{
-      let rect = canvasDiv.current.getBoundingClientRect();
-      let container = { width: rect.width, height: rect.height };
-      const aspect = container.width / container.height;
-      const scene = sceneRef.current;
+    if (!canvasDiv.current) return;
 
-      let renderer: THREE.WebGLRenderer;
+    // Start progress before any WebGL checks so the loader can never remain at 0%.
+    const progress = setProgress(setLoading);
 
- try {
-  renderer = new THREE.WebGLRenderer({
-    alpha: true,
-    antialias: true,
-  });
- } catch (error) {
-  console.error("WebGL initialization failed:", error);
+    if (!isWebGLAvailable()) {
+      console.warn("WebGL is not available. Skipping 3D character.");
+      progress.clear();
+      return;
+    }
 
-  if (canvasDiv.current) {
-    canvasDiv.current.innerHTML = "";
-  }
+    let renderer: THREE.WebGLRenderer;
+    try {
+      renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+    } catch (error) {
+      console.error("WebGL initialization failed:", error);
+      progress.clear();
+      return;
+    }
 
-  return;
- }
-      renderer.setSize(container.width, container.height);
-      renderer.setPixelRatio(window.devicePixelRatio);
-      renderer.toneMapping = THREE.ACESFilmicToneMapping;
-      renderer.toneMappingExposure = 1;
-      canvasDiv.current.appendChild(renderer.domElement);
+    const container = canvasDiv.current.getBoundingClientRect();
+    const width = Math.max(container.width, 1);
+    const height = Math.max(container.height, 1);
+    const scene = sceneRef.current;
+    const camera = new THREE.PerspectiveCamera(14.5, width / height, 0.1, 1000);
+    camera.position.set(0, 13.1, 24.7);
+    camera.zoom = 1.1;
+    camera.updateProjectionMatrix();
 
-      const camera = new THREE.PerspectiveCamera(14.5, aspect, 0.1, 1000);
-      camera.position.z = 10;
-      camera.position.set(0, 13.1, 24.7);
-      camera.zoom = 1.1;
-      camera.updateProjectionMatrix();
+    renderer.setSize(width, height);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1;
+    canvasDiv.current.appendChild(renderer.domElement);
 
-      let headBone: THREE.Object3D | null = null;
-      let screenLight: any | null = null;
-      let mixer: THREE.AnimationMixer;
+    const light = setLighting(scene);
+    const { loadCharacter } = setCharacter(renderer, scene, camera);
+    const clock = new THREE.Clock();
+    let headBone: THREE.Object3D | null = null;
+    let screenLight: THREE.Object3D | null = null;
+    let mixer: THREE.AnimationMixer | undefined;
+    let character: THREE.Object3D | null = null;
+    let animationFrame = 0;
 
-      const clock = new THREE.Clock();
-
-      const light = setLighting(scene);
-      let progress = setProgress((value) => setLoading(value));
-      const { loadCharacter } = setCharacter(renderer, scene, camera);
-
-      loadCharacter().then((gltf) => {
-        if (gltf) {
-          const animations = setAnimations(gltf);
-          hoverDivRef.current && animations.hover(gltf, hoverDivRef.current);
-          mixer = animations.mixer;
-          let character = gltf.scene;
-          setChar(character);
-          scene.add(character);
-          headBone = character.getObjectByName("spine006") || null;
-          screenLight = character.getObjectByName("screenlight") || null;
-          progress.loaded().then(() => {
-            setTimeout(() => {
-              light.turnOnLights();
-              animations.startIntro();
-            }, 2500);
-          });
-          window.addEventListener("resize", () =>
-            handleResize(renderer, camera, canvasDiv, character)
-          );
+    loadCharacter()
+      .then((gltf) => {
+        if (!gltf) {
+          progress.clear();
+          return;
         }
-      });
 
-      let mouse = { x: 0, y: 0 },
-        interpolation = { x: 0.1, y: 0.2 };
+        const animations = setAnimations(gltf);
+        if (hoverDivRef.current) animations.hover(gltf, hoverDivRef.current);
+        mixer = animations.mixer;
+        character = gltf.scene;
+        setChar(character);
+        scene.add(character);
+        headBone = character.getObjectByName("spine006");
+        screenLight = character.getObjectByName("screenlight");
 
-      const onMouseMove = (event: MouseEvent) => {
-        handleMouseMove(event, (x, y) => (mouse = { x, y }));
-      };
-      let debounce: number | undefined;
-      const onTouchStart = (event: TouchEvent) => {
-        const element = event.target as HTMLElement;
-        debounce = setTimeout(() => {
-          element?.addEventListener("touchmove", (e: TouchEvent) =>
-            handleTouchMove(e, (x, y) => (mouse = { x, y }))
-          );
-        }, 200);
-      };
-
-      const onTouchEnd = () => {
-        handleTouchEnd((x, y, interpolationX, interpolationY) => {
-          mouse = { x, y };
-          interpolation = { x: interpolationX, y: interpolationY };
+        progress.loaded().then(() => {
+          setTimeout(() => {
+            light.turnOnLights();
+            animations.startIntro();
+          }, 2500);
         });
-      };
-
-      document.addEventListener("mousemove", (event) => {
-        onMouseMove(event);
+      })
+      .catch((error) => {
+        console.error("3D character failed to load:", error);
+        progress.clear();
       });
-      const landingDiv = document.getElementById("landingDiv");
-      if (landingDiv) {
-        landingDiv.addEventListener("touchstart", onTouchStart);
-        landingDiv.addEventListener("touchend", onTouchEnd);
-      }
-      const animate = () => {
-        requestAnimationFrame(animate);
-        if (headBone) {
-          handleHeadRotation(
-            headBone,
-            mouse.x,
-            mouse.y,
-            interpolation.x,
-            interpolation.y,
-            THREE.MathUtils.lerp
-          );
-          light.setPointLight(screenLight);
-        }
-        const delta = clock.getDelta();
-        if (mixer) {
-          mixer.update(delta);
-        }
-        renderer.render(scene, camera);
-      };
-      animate();
-      return () => {
-        clearTimeout(debounce);
-        scene.clear();
-        renderer.dispose();
-        window.removeEventListener("resize", () =>
-          handleResize(renderer, camera, canvasDiv, character!)
-        );
-        if (canvasDiv.current) {
-          canvasDiv.current.removeChild(renderer.domElement);
-        }
-        if (landingDiv) {
-          document.removeEventListener("mousemove", onMouseMove);
-          landingDiv.removeEventListener("touchstart", onTouchStart);
-          landingDiv.removeEventListener("touchend", onTouchEnd);
-        }
-      };
-    }
-    catch (error) {
-    console.error("Failed to initialize 3D scene:", error);
 
-    if (canvasDiv.current) {
-      canvasDiv.current.innerHTML = "";
-    }
-  }
+    let mouse = { x: 0, y: 0 };
+    let interpolation = { x: 0.1, y: 0.2 };
+    const landingDiv = document.getElementById("landingDiv");
+
+    const onMouseMove = (event: MouseEvent) => {
+      handleMouseMove(event, (x, y) => (mouse = { x, y }));
+    };
+    const onTouchMove = (event: TouchEvent) => {
+      handleTouchMove(event, (x, y) => (mouse = { x, y }));
+    };
+    const onTouchStart = (event: TouchEvent) => {
+      (event.target as HTMLElement | null)?.addEventListener(
+        "touchmove",
+        onTouchMove
+      );
+    };
+    const onTouchEnd = () => {
+      handleTouchEnd((x, y, interpolationX, interpolationY) => {
+        mouse = { x, y };
+        interpolation = { x: interpolationX, y: interpolationY };
+      });
+    };
+
+    document.addEventListener("mousemove", onMouseMove);
+    landingDiv?.addEventListener("touchstart", onTouchStart);
+    landingDiv?.addEventListener("touchend", onTouchEnd);
+
+    const animate = () => {
+      animationFrame = requestAnimationFrame(animate);
+      if (headBone) {
+        handleHeadRotation(
+          headBone,
+          mouse.x,
+          mouse.y,
+          interpolation.x,
+          interpolation.y,
+          THREE.MathUtils.lerp
+        );
+        light.setPointLight(screenLight);
+      }
+      mixer?.update(clock.getDelta());
+      renderer.render(scene, camera);
+    };
+    animate();
+
+    const onResize = () => {
+      if (character) handleResize(renderer, camera, canvasDiv, character);
+    };
+    window.addEventListener("resize", onResize);
+
+    return () => {
+      cancelAnimationFrame(animationFrame);
+      document.removeEventListener("mousemove", onMouseMove);
+      landingDiv?.removeEventListener("touchstart", onTouchStart);
+      landingDiv?.removeEventListener("touchend", onTouchEnd);
+      window.removeEventListener("resize", onResize);
+      scene.clear();
+      renderer.dispose();
+      renderer.domElement.remove();
+    };
   }, []);
 
   return (
-    <>
-      <div className="character-container">
-        <div className="character-model" ref={canvasDiv}>
-          <div className="character-rim"></div>
-          <div className="character-hover" ref={hoverDivRef}></div>
-        </div>
+    <div className="character-container">
+      <div className="character-model" ref={canvasDiv}>
+        <div className="character-rim" />
+        <div className="character-hover" ref={hoverDivRef} />
       </div>
-    </>
+    </div>
   );
 };
 
