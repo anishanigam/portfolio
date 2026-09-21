@@ -9,6 +9,8 @@ interface Props {
   preserveAspectRatio?: boolean;
 }
 
+const CULRAV_IMAGE = "/images/work/logo-culrav25.png";
+
 const WorkImage = ({
   image,
   alt,
@@ -18,6 +20,7 @@ const WorkImage = ({
 }: Props) => {
   const [isVideo, setIsVideo] = useState(false);
   const [video, setVideo] = useState("");
+  const isCulravImage = preserveAspectRatio || image === CULRAV_IMAGE;
 
   const handleMouseEnter = async () => {
     if (!videoPath) return;
@@ -28,7 +31,7 @@ const WorkImage = ({
   };
 
   return (
-    <div className={`work-image${preserveAspectRatio ? " work-image-landscape" : ""}`}>
+    <div className={`work-image${isCulravImage ? " work-image-landscape" : ""}`}>
       <a
         className="work-image-in"
         href={link}
@@ -37,13 +40,25 @@ const WorkImage = ({
         target="_blank"
         rel="noreferrer"
         data-cursor="disable"
+        style={isCulravImage ? { display: "block", height: "auto", overflow: "visible" } : undefined}
       >
         {link && (
           <div className="work-link">
             <MdArrowOutward />
           </div>
         )}
-        <img src={image} alt={alt} />
+        <img
+          src={image}
+          alt={alt}
+          style={isCulravImage ? {
+            display: "block",
+            width: "min(100%, 700px)",
+            maxWidth: "100%",
+            height: "auto",
+            maxHeight: "none",
+            objectFit: "contain",
+          } : undefined}
+        />
         {isVideo && <video src={video} autoPlay muted playsInline loop />}
       </a>
     </div>
